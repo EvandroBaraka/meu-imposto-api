@@ -3,7 +3,6 @@ import AuthService from "../services/AuthService";
 
 const register = async (req: Request, res: Response) => {
     try {
-        console.log("Registering user with data:", req.body);
         const user = await AuthService.registerUser(req.body);
         return res.status(201).json({
             message: "Usuário registrado com sucesso",

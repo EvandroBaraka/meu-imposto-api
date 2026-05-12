@@ -28,7 +28,7 @@ const registerUser = async (data: RegisterRequest) => {
     return newUser;
 };
 
-const loginUser = async (data: AuthRequest): Promise<string> => {
+const loginUser = async (data: AuthRequest) => {
     const user = await prisma.user.findUnique({
         where: { email: data.email },
     });
@@ -48,13 +48,13 @@ const loginUser = async (data: AuthRequest): Promise<string> => {
     }
     
     const token = jwt.sign(
-        { email: data.email },
+        { id: user.id, email: data.email },
         process.env.JWT_SECRET || "secret",
         {
             expiresIn: "7d",
         },
     );
-    return token;
+    return { user: { id: user.id }, token };
 };
 
 export default {
