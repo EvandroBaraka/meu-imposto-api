@@ -1,3 +1,19 @@
+import { prisma } from "../utils/prisma";
+import { Receipt } from "../types";
+
+const createReceipt = async (userId: string, data: Receipt) => {
+    return await prisma.receipts.create({
+        data: {
+            userId,
+            storeName: data.storeName,
+            totalValue: data.totalValue,
+            tributes: data.tributes,
+            purchaseDate: new Date(data.purchaseDate),
+            nfeKey: data.nfeKey,
+        },
+    });
+};
+
 const listReceipts = async (userId: string | undefined) => {
     return ["teste"];
 };
@@ -12,8 +28,15 @@ const searchReceipt = async (p: string, userId: string | undefined) => {
     };
 };
 
-const getReceiptById = async (receiptId: string, userId: string | undefined) => {
-    return null;
+const getReceiptByNfeKey = async (nfeKey: string, userId: string | undefined) => {
+    const receipt = await prisma.receipts.findFirst({
+        where: {
+            nfeKey,
+            userId,
+        },
+    });
+
+    return receipt || null;
 };
 
 const deleteReceipt = async (receiptId: string, userId: string | undefined) => {
@@ -29,9 +52,10 @@ const getTaxesSummary = async (userId: string | undefined, query: any) => {
 };
 
 export default {
+    createReceipt,
     listReceipts,
     searchReceipt,
-    getReceiptById,
+    getReceiptByNfeKey,
     deleteReceipt,
     getTaxesSummary,
 };

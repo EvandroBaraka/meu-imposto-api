@@ -33,6 +33,15 @@ const swaggerOptions = {
                 description: "Servidor local de desenvolvimento",
             },
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
     },
     apis: ["./src/routes/*.ts"],
 };
