@@ -1,5 +1,6 @@
 import { prisma } from "../utils/prisma";
 import { Receipt } from "../types";
+import NFCeService from "./NFCeService";
 
 const createReceipt = async (userId: string, data: Receipt) => {
     return await prisma.receipts.create({
@@ -8,24 +9,26 @@ const createReceipt = async (userId: string, data: Receipt) => {
             storeName: data.storeName,
             totalValue: data.totalValue,
             tributes: data.tributes,
-            purchaseDate: new Date(data.purchaseDate),
+            purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : null,
             nfeKey: data.nfeKey,
         },
     });
 };
 
 const listReceipts = async (userId: string | undefined) => {
-    return ["teste"];
+    const receipts = await prisma.receipts.findMany({
+        where: {
+            userId,
+        },
+        orderBy: {
+            purchaseDate: "desc",
+        },
+    });
+    return receipts;
 };
 
-const searchReceipt = async (p: string, userId: string | undefined) => {
-    return {
-        p,
-        storeName: "",
-        totalValue: 0,
-        tributes: 0,
-        purchaseDate: new Date(),
-    };
+const searchReceipt = async (url: string) => {
+    return await NFCeService.fetchNFCeData(url);
 };
 
 const getReceiptByNfeKey = async (nfeKey: string, userId: string | undefined) => {
@@ -40,13 +43,27 @@ const getReceiptByNfeKey = async (nfeKey: string, userId: string | undefined) =>
 };
 
 const deleteReceipt = async (receiptId: string, userId: string | undefined) => {
-    return null;
+    return await prisma.receipts.deleteMany({
+        where: {
+            id: receiptId,
+            userId
+        }
+    });
 };
 
 const getTaxesSummary = async (userId: string | undefined, query: any) => {
+    // Implementação básica para evitar erros, pode ser expandida depois
+    const stats = await prisma.receipts.aggregate({
+        where: { userId },
+        _sum: {
+            totalValue: true,
+            tributes: true
+        }
+    });
+
     return {
-        totalSpent: 0,
-        totalTaxes: 0,
+        totalSpent: stats._sum.totalValue || 0,
+        totalTaxes: stats._sum.tributes || 0,
         period: query,
     };
 };

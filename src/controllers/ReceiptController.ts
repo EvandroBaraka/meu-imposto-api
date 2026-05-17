@@ -8,7 +8,10 @@ const addReceipt = async (req: Request, res: Response) => {
             return res.status(401).json({ error: "Usuário não autenticado" });
         }
 
-        const existingReceipt = await ReceiptService.getReceiptByNfeKey(req.body.nfeKey, userId);
+        const existingReceipt = await ReceiptService.getReceiptByNfeKey(
+            req.body.nfeKey,
+            userId,
+        );
         if (existingReceipt) {
             return res.status(409).json({ error: "Cupom já cadastrado" });
         }
@@ -25,9 +28,22 @@ const listReceipts = async (req: Request, res: Response) => {
     return res.status(200).json(receipts);
 };
 
-const searchReceipt = async (req: Request, res: Response) => {
-    const result = await ReceiptService.searchReceipt(req.body.p, req.user?.id);
-    return res.status(200).json(result);
+const searchNewReceipt = async (req: Request, res: Response) => {
+    const url = req.query.url;
+
+    if (!url || typeof url !== "string") {
+        return res
+            .status(400)
+            .json({ error: "Parâmetro de consulta inválido" });
+    }
+
+    try {
+        const result = await ReceiptService.searchReceipt(url);
+        return res.status(200).json(result);
+    } catch (error: any) {
+        console.error("Erro ao buscar NFC-e:", error);
+        return res.status(500).json({ error: error.message || "Erro interno ao buscar NFC-e" });
+    }
 };
 
 const getReceipt = async (req: Request, res: Response) => {
@@ -39,13 +55,17 @@ const getReceipt = async (req: Request, res: Response) => {
 };
 
 const deleteReceipt = async (req: Request, res: Response) => {
-    await ReceiptService.deleteReceipt(req.params.id as string, req.user?.id);
-    return res.status(204).send();
+    try {
+        await ReceiptService.deleteReceipt(req.params.id as string, req.user?.id);
+        return res.status(204).send();
+    } catch (error: any) {
+        return res.status(400).json({ error: error.message });
+    }
 };
 
 export default {
     listReceipts,
-    searchReceipt,
+    searchNewReceipt,
     getReceipt,
     deleteReceipt,
     addReceipt,
