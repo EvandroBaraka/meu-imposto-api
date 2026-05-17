@@ -51,6 +51,11 @@ const getReceipt = async (req: Request, res: Response) => {
         req.params.nfeKey as string,
         req.user?.id,
     );
+
+    if (!receipt) {
+        return res.status(404).json({ error: "Cupom não encontrado" });
+    }
+
     return res.status(200).json(receipt);
 };
 

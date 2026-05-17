@@ -104,7 +104,7 @@ router.get("/list", ReceiptController.listReceipts);
  * @openapi
  * /api/receipts/search:
  *   get:
- *     summary: Busca um cupom fiscal pelo URL do QR code
+ *     summary: Busca um cupom fiscal no SEFAZ pelo URL do QR code
  *     tags: [Receipts]
  *     security:
  *       - bearerAuth: []
@@ -124,7 +124,53 @@ router.get("/list", ReceiptController.listReceipts);
  *         description: Erro interno ao buscar NFC-e
  */
 router.get("/search", ReceiptController.searchNewReceipt);
+
+/**
+ * @openapi
+ * /api/receipts/{id}:
+ *   get:
+ *     summary: Busca um cupom fiscal pelo ID
+ *     tags: [Receipts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: Identificador único do cupom (Chave de acesso da NFC-e 44 caracteres)
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Cupom encontrado com sucesso
+ *       404:
+ *         description: Cupom não encontrado
+ */
 router.get("/:id", ReceiptController.getReceipt);
+
+/**
+ * @openapi
+ * /api/receipts/{id}:
+ *   delete:
+ *     summary: Deleta um cupom fiscal pelo ID
+ *     tags: [Receipts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: Identificador único do cupom (Chave de acesso da NFC-e 44 caracteres)
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Cupom deletado com sucesso
+ *       400:
+ *         description: Dados inválidos
+ *       404:
+ *         description: Cupom não encontrado
+ */
 router.delete("/:id", ReceiptController.deleteReceipt);
 
 export default router;
